@@ -1,0 +1,35 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Northwind_Net7_Shared
+@inject HttpClient HttpClient
+
+<QuickGrid Class="products" Items="@products">
+    <PropertyColumn Property="@(p => p.ProductName)" Sortable="true">
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.Category)" Sortable="true"/>
+
+    <PropertyColumn Property="@(p => p.UnitPrice)" Sortable="true">
+    </PropertyColumn>
+</QuickGrid>
+
+@code{
+    private IQueryable<Product>? products;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var httpResponse = await HttpClient.GetAsync("/products");
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            errorMessage = httpResponse.ReasonPhrase;
+            Console.WriteLine($"There was an error! {errorMessage}");
+            return;
+        }
+
+        var productList = await httpResponse.Content.ReadFromJsonAsync<List<Product>>();
+        products = productList.AsQueryable();
+    }
+
+}
