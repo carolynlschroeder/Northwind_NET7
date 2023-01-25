@@ -1,25 +1,33 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Components.QuickGrid
 @using Northwind_Net7_Shared
-@inject HttpClient HttpClient
+@using System.Security.Cryptography.X509Certificates
+@using System.Text.Json.Serialization
+@inject HttpClient client
 
-<QuickGrid Class="products" Items="@products">
-    <PropertyColumn Property="@(p => p.ProductName)" Sortable="true">
-    </PropertyColumn>
-    <PropertyColumn Property="@(p => p.Category)" Sortable="true"/>
+@if (categories != null && jpegImages != null)
+{
+    <div class="d-flex">
+        <div class="w-25">
+           @for (int i = 0; i < categories.Count; i++)
+           {
+               <div><img src="@jpegImages[i]"></div>
+               <div class="pb-1">@categories[i].CategoryName</div>
+           }
+        </div>
+        <div class="w-75"><_Products CategoryId="CategoryId"/></div>
+    </div>
+}
 
-    <PropertyColumn Property="@(p => p.UnitPrice)" Sortable="true">
-    </PropertyColumn>
-</QuickGrid>
-
-@code{
-    private IQueryable<Product>? products;
+@code
+{
+    public int? CategoryId { get; set; } = null!;
+    public List<Category>? categories { get; set; }
+    public string[]? jpegImages { get; set; }
     private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        using var httpResponse = await HttpClient.GetAsync("/products");
+        using var httpResponse = await client.GetAsync("/categories");
 
         if (!httpResponse.IsSuccessStatusCode)
         {
@@ -28,8 +36,26 @@
             return;
         }
 
-        var productList = await httpResponse.Content.ReadFromJsonAsync<List<Product>>();
-        products = productList.AsQueryable();
+        categories = await httpResponse.Content.ReadFromJsonAsync<List<Category>>();
+
+        await GetJpegImages();
+
     }
 
+    private async Task GetJpegImages()
+    {
+        using var httpResponse = await client.GetAsync("/categories/GetJpegImages");
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            errorMessage = httpResponse.ReasonPhrase;
+            Console.WriteLine($"There was an error! {errorMessage}");
+            return;
+        }
+
+        jpegImages = await httpResponse.Content.ReadFromJsonAsync<string[]>();
+    }
 }
+
+
+

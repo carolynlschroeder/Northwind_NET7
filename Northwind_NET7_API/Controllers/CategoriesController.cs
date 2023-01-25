@@ -6,7 +6,7 @@ using Northwind_Net7_Shared;
 
 namespace Northwind_NET7_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -23,6 +23,42 @@ namespace Northwind_NET7_API.Controllers
         public IQueryable<Category>  Get()
         {
             return _context.Categories;
+        }
+
+        // GET api/<CategoriesController>/5
+        
+
+        [HttpGet("/Categories/GetJpegImages", Name = "GetJpegImages")]
+        public string[] GetJpegImages()
+        {
+            var categories = _context.Categories.ToList();
+            var array = new string[categories.Count()];
+            for (int i = 0; i < categories.Count(); i++)
+            {
+                array[i] = GetJpegImage(categories[i].CategoryId);
+            }
+
+            return array;
+        }
+
+        private string GetJpegImage(int id)
+        {
+            var category = _context.Categories.Find(id);
+            var imageBytes = category.Picture;
+            var base64Str = string.Empty;
+            using (var ms = new MemoryStream())
+            {
+                int offset = 78;
+                ms.Write(imageBytes, offset, imageBytes.Length - offset);
+                var bmp = new System.Drawing.Bitmap(ms);
+                using (var jpegms = new MemoryStream())
+                {
+                    bmp.Save(jpegms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    base64Str = Convert.ToBase64String(jpegms.ToArray());
+                }
+            }
+
+            return $"data:image/jpeg;base64,{base64Str}";
         }
 
         // GET api/<CategoriesController>/5

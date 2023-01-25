@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Northwind_Net7_Shared
+@inject HttpClient client
+
+<QuickGrid Class="products" Items="@products" Pagination="@pagination">
+    <PropertyColumn Property="@(p => p.ProductName)" Sortable="true">
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.QuantityPerUnit)"/>
+    <PropertyColumn Property="@(p => p.UnitPrice)" Sortable="true">
+    </PropertyColumn>
+</QuickGrid>
+<Paginator Value="@pagination" />
+
+@code{
+    
+    [Parameter]
+    public int? CategoryId { get; set; }
+    private IQueryable<Product>? products;
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private string errorMessage;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        String url = CategoryId == null ? "/products" : $"/products/getByCategory/{CategoryId}";
+
+        using var httpResponse = await client.GetAsync(url);
+
+        if (!httpResponse.IsSuccessStatusCode)
+        {
+            errorMessage = httpResponse.ReasonPhrase;
+            Console.WriteLine($"There was an error! {errorMessage}");
+            return;
+        }
+
+        var productList = await httpResponse.Content.ReadFromJsonAsync<List<Product>>();
+       
+        products = productList.AsQueryable();
+        
+    }
+
+}

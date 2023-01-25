@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind_NET7", "Northwind
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind_NET7_API", "Northwind_NET7_API\Northwind_NET7_API.csproj", "{8546539C-B264-4838-9E43-8FA4065F7882}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind_Net7_Shared", "Northwind_Net7_Shared\Northwind_Net7_Shared.csproj", "{EC4B5BBA-8FCE-4B7D-9095-7324764567D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind_Net7_Shared", "Northwind_Net7_Shared\Northwind_Net7_Shared.csproj", "{EC4B5BBA-8FCE-4B7D-9095-7324764567D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
