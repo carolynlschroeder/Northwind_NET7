@@ -20,30 +20,28 @@ namespace Northwind_NET7_API.Controllers
 
         // GET: api/<CategoriesController>
         [HttpGet]
-        public IQueryable<Category>  Get()
+        public IQueryable<CategoryExt>  Get()
         {
-            return _context.Categories;
-        }
-
-        // GET api/<CategoriesController>/5
-        
-
-        [HttpGet("/Categories/GetJpegImages", Name = "GetJpegImages")]
-        public string[] GetJpegImages()
-        {
-            var categories = _context.Categories.ToList();
-            var array = new string[categories.Count()];
-            for (int i = 0; i < categories.Count(); i++)
+            var categories = _context.Categories;
+            var categoryExtensions = new List<CategoryExt>();
+            foreach (var category in categories)
             {
-                array[i] = GetJpegImage(categories[i].CategoryId);
+                var ext = new CategoryExt
+                {
+                    CategoryId = category.CategoryId,
+                    CategoryName = category.CategoryName,
+                    Description = category.Description,
+                    Base64String = GetJpegImage(category)
+                };
+                categoryExtensions.Add(ext);
             }
 
-            return array;
+            return categoryExtensions.AsQueryable();
         }
 
-        private string GetJpegImage(int id)
+
+        private string GetJpegImage(Category category)
         {
-            var category = _context.Categories.Find(id);
             var imageBytes = category.Picture;
             var base64Str = string.Empty;
             using (var ms = new MemoryStream())
@@ -60,6 +58,7 @@ namespace Northwind_NET7_API.Controllers
 
             return $"data:image/jpeg;base64,{base64Str}";
         }
+
 
         // GET api/<CategoriesController>/5
         [HttpGet("{id}")]

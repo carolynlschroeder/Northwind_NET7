@@ -4,15 +4,20 @@
 @using System.Text.Json.Serialization
 @inject HttpClient client
 
-@if (categories != null && jpegImages != null)
+@if (categories != null)
 {
     <div class="d-flex">
         <div class="w-25">
-           @for (int i = 0; i < categories.Count; i++)
-           {
-               <div><img src="@jpegImages[i]"></div>
-               <div class="pb-1">@categories[i].CategoryName</div>
-           }
+            @if(categories != null)
+            {
+                foreach (var c in categories)
+                {
+                    <div class="p-3">
+                        <div><img src="@c.Base64String"></div>
+                        <div><NavLink class="nav-link" @onclick="@(() => SetCategory(c.CategoryId))">@c.CategoryName</NavLink></div>
+                    </div>
+                }
+            }
         </div>
         <div class="w-75"><_Products CategoryId="CategoryId"/></div>
     </div>
@@ -21,8 +26,7 @@
 @code
 {
     public int? CategoryId { get; set; } = null!;
-    public List<Category>? categories { get; set; }
-    public string[]? jpegImages { get; set; }
+    public List<CategoryExt>? categories { get; set; }
     private string errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -36,24 +40,13 @@
             return;
         }
 
-        categories = await httpResponse.Content.ReadFromJsonAsync<List<Category>>();
-
-        await GetJpegImages();
+        categories = await httpResponse.Content.ReadFromJsonAsync<List<CategoryExt>>();
 
     }
 
-    private async Task GetJpegImages()
+    private void SetCategory(int id)
     {
-        using var httpResponse = await client.GetAsync("/categories/GetJpegImages");
-
-        if (!httpResponse.IsSuccessStatusCode)
-        {
-            errorMessage = httpResponse.ReasonPhrase;
-            Console.WriteLine($"There was an error! {errorMessage}");
-            return;
-        }
-
-        jpegImages = await httpResponse.Content.ReadFromJsonAsync<string[]>();
+        CategoryId = id;
     }
 }
 
