@@ -1,0 +1,75 @@
+﻿@page "/edit/{productId:int}"
+@using Northwind_Net7_Shared
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Northwind_Net7_Shared
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Northwind_Net7_Shared
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using Northwind_Net7_Shared
+@using Northwind_NET7.Pages.Edit
+@inject HttpClient Http
+
+<PageTitle>Edit @product?.ProductName</PageTitle>
+
+@if (product is not null)
+{
+    <h1>Edit product</h1>
+    
+    <div class="col-md-4">
+    <EditForm Model="@product" OnValidSubmit="SaveChangesAsync">
+        <DataAnnotationsValidator/>
+        <p>
+            <label for="name">Name:</label>
+            <InputText @bind-Value="@product.ProductName" id="name" class="form-control"/>
+            <ValidationMessage For="@(() => product.ProductName)"/>
+        </p>
+    <p>
+        <label for="category">Category:</label>
+        <InputSelect @bind-Value="@product.CategoryId" id="category" class="form-select">
+            <option value="">Select</option>
+            @foreach (var c in categories ?? new List<Category>())
+            {
+                <option value="@c.CategoryId">@c.CategoryName</option>
+            }
+        </InputSelect>
+    </p>
+            <p>
+            <label for="quantity">Quantity Per Unit:</label>
+                <InputText @bind-Value="@product.QuantityPerUnit" id="quantity" class="form-control"/>
+            <ValidationMessage For="@(() => product.QuantityPerUnit)" />
+            </p>
+    </EditForm>
+    </div>
+}
+
+@code {
+    private Product? product;
+    private List<Category>? categories;
+    [Parameter] public int ProductId { get; set; }
+ 
+
+    async Task SaveChangesAsync()
+    {
+
+    //if (editContext.IsModified())
+    //{
+    //    await Service.SaveChangesAsync();
+    //    editContext.MarkAsUnmodified();
+    //    savedChanges = true;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        using var response = await Http.GetAsync($"/products/{ProductId}");
+        product = await response.Content.ReadFromJsonAsync<Product>();
+        
+        using var httpResponse = await Http.GetAsync("/categories/getCategories");
+        categories = await httpResponse.Content.ReadFromJsonAsync<List<Category>>();
+    }
+    
+
+
+}

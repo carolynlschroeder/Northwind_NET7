@@ -40,6 +40,13 @@ namespace Northwind_NET7_API.Controllers
         }
 
 
+        [HttpGet("getCategories", Name = "GetCategories")]
+        public List<Category> GetCategories()
+        {
+            return _context.Categories.ToList();
+        }
+
+
         private string GetJpegImage(Category category)
         {
             var imageBytes = category.Picture;

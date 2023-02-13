@@ -38,9 +38,9 @@ namespace Northwind_NET7_API.Controllers
 
         // GET api/<ProductsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public Product Get(int id)
         {
-            return "value";
+            return _context.Products.Find(id);
         }
 
         // POST api/<ProductsController>

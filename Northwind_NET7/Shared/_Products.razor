@@ -16,6 +16,9 @@
     <TemplateColumn Title="Price" Align="@Align.Right" SortBy="@(GridSort<Product>.ByAscending(p => p.UnitPrice))">
         $@(context.UnitPrice?.ToString("N2"))
     </TemplateColumn>
+    <TemplateColumn>
+        <a href="edit/@context.ProductId">Edit</a>
+    </TemplateColumn>
 </QuickGrid>
 <Paginator Value="@pagination" />
 
