@@ -28,6 +28,7 @@
                         <option value="@c.CategoryId">@c.CategoryName</option>
                     }
                 </InputSelect>
+                <ValidationMessage For="@(() => product.CategoryId)" />
             </p>
             <p>
                 <label for="quantity">Quantity Per Unit:</label>
@@ -39,14 +40,20 @@
                 <PriceEditor @bind-Value="@product.UnitPrice" id="price" />
                 <ValidationMessage For="@(() => product.UnitPrice)" />
             </p>
+            <p>
+                <label for="supplier">Supplier:</label>
+                <InputSelect @bind-Value="@product.SupplierId" id="supplier" class="form-select">
+                    <option value="">Select</option>
+                    @foreach (var s in suppliers ?? new List<Supplier>())
+                    {
+                        <option value="@s.SupplierId">@s.CompanyName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => product.SupplierId)" />
+            </p>
             <button class="btn btn-primary" type="submit">Save</button>
         </EditForm>
     </div>
-
-    @if (savedChanges && !editContext.IsModified())
-    {
-        <p><div class="alert alert-success">✓ Changes saved</div></p>
-    }
 
     <NavigationLock ConfirmExternalNavigation="@(editContext!.IsModified())"
                 OnBeforeInternalNavigation="ConfirmInternalNavigation" />
@@ -56,7 +63,7 @@
     private EditContext editContext = default!;
     private Product? product;
     private List<Category>? categories;
-    private bool savedChanges;
+    private List<Supplier>? suppliers;
 
     [Parameter]
     public int ProductId { get; set; }
@@ -69,7 +76,6 @@
         {
             using var httpResponse = await Http.PutAsJsonAsync($"/products/{ProductId}", product);
             editContext.MarkAsUnmodified();
-            savedChanges = true;
         }
 
         NavManager.NavigateTo("");
@@ -83,6 +89,9 @@
 
         using var httpResponse = await Http.GetAsync("/categories/getCategories");
         categories = await httpResponse.Content.ReadFromJsonAsync<List<Category>>();
+
+        using var resp = await Http.GetAsync("/suppliers");
+        suppliers = await resp.Content.ReadFromJsonAsync<List<Supplier>>();
     }
 
     async Task ConfirmInternalNavigation(LocationChangingContext locationChanging)

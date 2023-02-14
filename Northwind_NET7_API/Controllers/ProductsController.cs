@@ -47,9 +47,7 @@ namespace Northwind_NET7_API.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Product product)
         {
-            product.SupplierId = 1;
-            product.Discontinued = false;
-            
+
             try
             {
                 _context.Products.Add(product);
