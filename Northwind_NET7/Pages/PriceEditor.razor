@@ -1,0 +1,55 @@
+﻿@using System.Diagnostics.CodeAnalysis
+@using System.Runtime.InteropServices.JavaScript
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+@inherits InputBase<decimal?>
+
+<div>
+    <input @ref="@element" @attributes="@AdditionalAttributes" class="form-control form-control-small @CssClass" @bind="CurrentValueAsString" />
+</div>
+
+@code {
+    ElementReference element;
+    ValueTask<IJSObjectReference> moduleTask;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            moduleTask = JS.InvokeAsync<IJSObjectReference>("import", "./Pages/PriceEditor.razor.js");
+            await (await moduleTask).InvokeVoidAsync("attach", element);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        (await moduleTask)?.DisposeAsync();
+    }
+
+    protected override string FormatValueAsString(decimal? decimalResult)
+    {
+        return decimalResult?.ToString("N2") ?? String.Empty;
+    }
+
+    protected override bool TryParseValueFromString(string? value, out decimal? result, out string validationErrorMessage)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            result = null;
+            validationErrorMessage = null!;
+            return true;
+        }
+
+        if (decimal.TryParse(value, out var resultDecimal))
+        {
+            result = resultDecimal;
+            validationErrorMessage = null!;
+            return true;
+        }
+
+        result = default;
+        validationErrorMessage = $"The value for {DisplayName ?? FieldIdentifier.FieldName} isn't a valid price.";
+        return false;
+    }
+
+}

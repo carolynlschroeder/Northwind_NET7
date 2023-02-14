@@ -37,7 +37,7 @@ namespace Northwind_NET7_API.Controllers
         }
 
         // GET api/<ProductsController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetProduct")]
         public Product Get(int id)
         {
             return _context.Products.Find(id);
@@ -45,14 +45,51 @@ namespace Northwind_NET7_API.Controllers
 
         // POST api/<ProductsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] Product product)
         {
+            product.SupplierId = 1;
+            product.Discontinued = false;
+            
+            try
+            {
+                _context.Products.Add(product);
+                _context.SaveChanges();
+                return CreatedAtRoute("GetProduct", new { id = product.ProductId }, product);
+
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
+    
 
         // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(int id, [FromBody] Product product)
         {
+            if (product.ProductId != id)
+            {
+                return BadRequest();
+            }
+
+            if (_context.Products.AsNoTracking().FirstOrDefault(p=>p.ProductId == id) == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                //var entry = _context.Entry(contact);
+                //entry.State = EntityState.Modified;
+                _context.Update(product);
+                _context.SaveChanges();
+                return new NoContentResult();
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         // DELETE api/<ProductsController>/5

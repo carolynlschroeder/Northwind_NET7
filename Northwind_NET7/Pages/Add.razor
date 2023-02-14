@@ -1,0 +1,98 @@
+﻿@page "/add"
+@using Northwind_Net7_Shared
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Add</PageTitle>
+
+
+<h1>Add product</h1>
+
+<div class="col-md-4">
+    <EditForm EditContext="@editContext" OnValidSubmit="SaveChangesAsync">
+        <DataAnnotationsValidator />
+        <p>
+            <label for="name">Name:</label>
+            <InputText @bind-Value="@product.ProductName" id="name" class="form-control" />
+            <ValidationMessage For="@(() => product.ProductName)" />
+        </p>
+        <p>
+            <label for="category">Category:</label>
+            <InputSelect @bind-Value="@product.CategoryId" id="category" class="form-select">
+                <option value="">Select</option>
+                @foreach (var c in categories ?? new List<Category>())
+                {
+                    <option value="@c.CategoryId">@c.CategoryName</option>
+                }
+            </InputSelect>
+        </p>
+        <p>
+            <label for="quantity">Quantity Per Unit:</label>
+            <InputText @bind-Value="@product.QuantityPerUnit" id="quantity" class="form-control" />
+            <ValidationMessage For="@(() => product.QuantityPerUnit)" />
+        </p>
+        <p>
+            <label for="price">Unit Price:</label>
+            <PriceEditor @bind-Value="@product.UnitPrice" id="price" />
+            <ValidationMessage For="@(() => product.UnitPrice)" />
+        </p>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </EditForm>
+</div>
+
+@if (savedChanges && !editContext.IsModified())
+{
+    <p><div class="alert alert-success">✓ Changes saved</div></p>
+}
+
+<NavigationLock ConfirmExternalNavigation="@(editContext!.IsModified())"
+                OnBeforeInternalNavigation="ConfirmInternalNavigation" />
+
+@code {
+    private EditContext editContext = default!;
+    private Product product;
+    private List<Category>? categories;
+    private bool savedChanges;
+
+    [Parameter]
+    public int ProductId { get; set; }
+
+
+    async Task SaveChangesAsync()
+    {
+
+        if (editContext.IsModified())
+        {
+            using var httpResponse = await Http.PostAsJsonAsync("/products", product);
+            editContext.MarkAsUnmodified();
+            savedChanges = true;
+        }
+
+        NavManager.NavigateTo("");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = new Product();
+        editContext = new EditContext(product!);
+
+        using var httpResponse = await Http.GetAsync("/categories/getCategories");
+        categories = await httpResponse.Content.ReadFromJsonAsync<List<Category>>();
+    }
+
+    async Task ConfirmInternalNavigation(LocationChangingContext locationChanging)
+    {
+        if (editContext.IsModified())
+        {
+            var isConfirmed = await JS.InvokeAsync<bool>("confirm", "Discard your changes?");
+            if (!isConfirmed)
+            {
+                locationChanging.PreventNavigation();
+            }
+        }
+    }
+
+}
