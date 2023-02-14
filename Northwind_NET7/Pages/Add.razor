@@ -14,6 +14,7 @@
 <div class="col-md-4">
     <EditForm EditContext="@editContext" OnValidSubmit="SaveChangesAsync">
         <DataAnnotationsValidator />
+        <ValidationSummary />
         <p>
             <label for="name">Name:</label>
             <InputText @bind-Value="@product.ProductName" id="name" class="form-control" />
@@ -28,17 +29,14 @@
                     <option value="@c.CategoryId">@c.CategoryName</option>
                 }
             </InputSelect>
-            <ValidationMessage For="@(() => product.CategoryId)" />
         </p>
         <p>
             <label for="quantity">Quantity Per Unit:</label>
             <InputText @bind-Value="@product.QuantityPerUnit" id="quantity" class="form-control" />
-            <ValidationMessage For="@(() => product.QuantityPerUnit)" />
         </p>
         <p>
             <label for="price">Unit Price:</label>
             <PriceEditor @bind-Value="@product.UnitPrice" id="price" />
-            <ValidationMessage For="@(() => product.UnitPrice)" />
         </p>
         <p>
             <label for="supplier">Supplier:</label>
@@ -49,7 +47,6 @@
                     <option value="@s.SupplierId">@s.CompanyName</option>
                 }
             </InputSelect>
-            <ValidationMessage For="@(() => product.SupplierId)" />
         </p>
         <button class="btn btn-primary" type="submit">Save</button>
     </EditForm>

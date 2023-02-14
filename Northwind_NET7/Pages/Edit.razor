@@ -28,12 +28,10 @@
                         <option value="@c.CategoryId">@c.CategoryName</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="@(() => product.CategoryId)" />
             </p>
             <p>
                 <label for="quantity">Quantity Per Unit:</label>
                 <InputText @bind-Value="@product.QuantityPerUnit" id="quantity" class="form-control" />
-                <ValidationMessage For="@(() => product.QuantityPerUnit)" />
             </p>
             <p>
                 <label for="price">Unit Price:</label>
@@ -49,7 +47,6 @@
                         <option value="@s.SupplierId">@s.CompanyName</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="@(() => product.SupplierId)" />
             </p>
             <button class="btn btn-primary" type="submit">Save</button>
         </EditForm>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Northwind_Net7_Shared;
 
@@ -7,6 +8,7 @@ public partial class Product
 {
     public int ProductId { get; set; }
 
+    [Required(ErrorMessage = "Product Name is required")]
     public string ProductName { get; set; } = null!;
 
     public int? SupplierId { get; set; }
