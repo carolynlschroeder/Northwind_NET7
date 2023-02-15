@@ -37,6 +37,7 @@
         <p>
             <label for="price">Unit Price:</label>
             <PriceEditor @bind-Value="@product.UnitPrice" id="price" />
+            <ValidationMessage For="@(() => product.UnitPrice)" />
         </p>
         <p>
             <label for="supplier">Supplier:</label>
